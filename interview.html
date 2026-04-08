@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview — Mingus (Peter Hopman)</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', -apple-system, Roboto, Helvetica, Arial, sans-serif;
+            background: #0f0f1a;
+            color: #e0e0ee;
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+        .page {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        /* ─── Header ─── */
+        .header {
+            text-align: center;
+            padding: 40px 0 32px;
+            border-bottom: 1px solid #222250;
+            margin-bottom: 32px;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #6c63ff, #a855f7);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+        .header .subtitle {
+            font-size: 1rem;
+            color: #888;
+            line-height: 1.6;
+        }
+        .header .subtitle strong {
+            color: #bbb;
+        }
+        .header .date {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        /* ─── Legend ─── */
+        .legend {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: #999;
+        }
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .legend-dot.s1 { background: #5bb8f5; }
+        .legend-dot.s2 { background: #f5a623; }
+
+        /* ─── Transcript lines ─── */
+        .block {
+            display: flex;
+            gap: 14px;
+            padding: 12px 16px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            border-left: 3px solid transparent;
+            transition: background 0.15s;
+        }
+        .block:hover {
+            background: rgba(108, 99, 255, 0.05);
+        }
+        .block.s1 { border-left-color: #5bb8f5; }
+        .block.s2 { border-left-color: #f5a623; }
+
+        .block-meta {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            min-width: 44px;
+            padding-top: 2px;
+        }
+        .block-time {
+            font-size: 0.68rem;
+            color: #444;
+            font-variant-numeric: tabular-nums;
+        }
+        .block-speaker {
+            font-size: 0.62rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+        .block.s1 .block-speaker {
+            background: #0d1f33;
+            color: #5bb8f5;
+        }
+        .block.s2 .block-speaker {
+            background: #2a1f08;
+            color: #f5a623;
+        }
+
+        .block-content {
+            flex: 1;
+        }
+        .block-text {
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+        .block-note {
+            margin-top: 6px;
+            font-size: 0.78rem;
+            color: #8b8ba0;
+            font-style: italic;
+        }
+        .block-note::before {
+            content: '→ ';
+        }
+
+        /* ─── Section divider ─── */
+        .divider {
+            text-align: center;
+            margin: 28px 0;
+            position: relative;
+        }
+        .divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 1px;
+            background: #222250;
+        }
+        .divider span {
+            position: relative;
+            background: #0f0f1a;
+            padding: 0 16px;
+            font-size: 0.75rem;
+            color: #444;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ─── Footer ─── */
+        .footer {
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid #222250;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #444;
+        }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 600px) {
+            .page { padding: 20px 12px 60px; }
+            .header h1 { font-size: 1.4rem; }
+            .header .subtitle { font-size: 0.88rem; }
+            .block { gap: 10px; padding: 10px 12px; }
+            .block-meta { min-width: 36px; }
+            .block-text { font-size: 0.84rem; }
+            .block-speaker { font-size: 0.58rem; padding: 1px 5px; }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <div class="header">
+        <h1>🎧 Interview Transcript</h1>
+        <div class="subtitle">
+            <strong>Interviewer:</strong> Sarrón Harfsterkamp<br>
+            <strong>Interviewee:</strong> Mingus (Peter Hopman)
+        </div>
+        <div class="date">April 2026</div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot s1"></div> Sarrón Harfsterkamp</div>
+        <div class="legend-item"><div class="legend-dot s2"></div> Mingus (Peter Hopman)</div>
+    </div>
+
+    <div id="transcript">
+
+        <!-- 0:15 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">0:15</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">Okay, so, then I will start with the questions immediately. Do you work harder from something simple and build that up to something complex, or the other way around?</div>
+            </div>
+        </div>
+
+        <!-- 0:35 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">0:35</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">Can you rephrase the question again?</div>
+            </div>
+        </div>
+
+        <!-- 0:41 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">0:41</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">So, if you design something, do you go from something simple and make that more difficult or complex, or have something that is very complex and build that down to something simple?</div>
+            </div>
+        </div>
+
+        <!-- 0:57 — Mingus long answer -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">0:57</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">I don't think that's the case. I think the case is always that if I have a design thought or I need to think about a concept, I immediately start by organizing all the parameters where I need to refer my concept to. And I would never go to make anything more complex. So, I'm always searching for clarity and for simplicity in a sense of making it as clear as possible, as simple as possible. And by making it as simple as possible, a lot of people will understand it as well. Because if you create something very complex, it's harder to understand. No, but this is, I think in that question, it also depends on the question itself, on the design question itself. I don't know if you can, you cannot say that there's only one direction, there's only one truth. It's always, so even a design question on its own is a complex one. But I'm, as a designer, always bringing it back to clarity, to making it just, okay, what do we have? What's the question? What kind of materials can I need? All those things, all the parameters around it.</div>
+            </div>
+        </div>
+
+        <!-- 2:35 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">2:35</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">So, it's more thought in parameters than dividing?</div>
+            </div>
+        </div>
+
+        <!-- 2:40 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">2:40</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">It's about clarity, getting the things clear for yourself. And also making it in towards the program of wishes, to get that clear. And then you know, now I can start.</div>
+            </div>
+        </div>
+
+        <!-- 2:59 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">2:59</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">One moment. One moment. Have you ever started with a project and midway to the project you thought it needs to be completely different?</div>
+            </div>
+        </div>
+
+        <!-- 3:21 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">3:21</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">What I can tell is that sometimes it happens, but that is really at the start of a project. Let's say somebody comes to me and ask if I can design a chair for them. And then I go there and have this interview with them and a talk about, okay, why? Why do you want to have a chair? And maybe it will end up that I will design a kitchen for them or an extension of their house instead of designing the chair. And that has to do with me as a designer, just asking the questions. Yeah, but why? Why do you think you need the chair? And then they say, yeah, because I want this and this. Okay. But it's probably, it's more about enjoying food or making food or whatever. So, and, you know, from that conversation, it ends up in a complete other solution and another design, which they thought will ask him for designing a chair. But having the conversation with your client, it can also just become something else.</div>
+            </div>
+        </div>
+
+        <!-- 4:35 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">4:35</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">So, two conversation and mostly the question why?</div>
+            </div>
+        </div>
+
+        <!-- 4:40 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">4:40</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">Yeah, that is the start overall.</div>
+            </div>
+        </div>
+
+        <!-- 5:07 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">5:07</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">If you design something or you need to reform it or translate to something different, then do you try to keep the original identity of your first idea, concept, object?</div>
+            </div>
+        </div>
+
+        <!-- 5:27 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">5:27</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">No, that also is very depending on the question and on the start of, for example, an existing design you have. And if somebody comes up with a question which is related to that design, I would redesign it towards the wishes of the client, for example.</div>
+            </div>
+        </div>
+
+        <!-- 5:50 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">5:50</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">So the client goes first?</div>
+            </div>
+        </div>
+
+        <!-- 5:55 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">5:55</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">It depends. If it's my own design and I want to produce it myself, for example, then I'm the client. I'm my own client. But if there's a client who says, I really enjoyed, again, let's say, this chair. I think it's a beautiful chair, but I'm more looking towards this or this or this and using this material. I would say, OK, I'm very happy that you're here because you like my chair, but I'm going to design another chair for you based upon what you really want. And that could be a starting point. The chair could be a starting point or not. It depends on what I'm thinking or what would be the best to provide the client of a good design.</div>
+            </div>
+        </div>
+
+        <!-- 7:08 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">7:08</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">Through the conversations you have with clients or for your own design, how do you decide which details can be sacrificed or need to stay?</div>
+            </div>
+        </div>
+
+        <!-- 7:37 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">7:37</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">That, again, is based on the conversation. And also, you can design something, but if it's very difficult to produce because the machines cannot do it or it's too expensive, all those things. There are a lot of things which are important by designing something. And it also needs to be produced in a suitable way. And it depends if it's mass production or if it's just a single one. There's a big priority in that. So, it's also difficult to answer.</div>
+            </div>
+        </div>
+
+        <!-- 8:24 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">8:24</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">If it is for yourself, a project for your own?</div>
+            </div>
+        </div>
+
+        <!-- 8:27 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">8:27</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">I would. But then again, for myself, I have some machines and I can do stuff. And I can just ask companies to make, let's say, parts of a design. But it's the same because if I don't have the money, I need to find something else to make it work. So, be smart as well. Being smart in designing it instead of just making a design which is very expensive to make, for example. I think it's also very interesting to search in the possibilities of production or money or those things.</div>
+            </div>
+        </div>
+
+        <!-- 9:19 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">9:19</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">I mean, the limits of them.</div>
+            </div>
+        </div>
+
+        <!-- 9:21 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">9:21</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">The limits, yeah, the limits and the possibilities. But you're still able to finalize the design you want.</div>
+            </div>
+        </div>
+
+        <!-- 9:32 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">9:32</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">Yeah. Did you ever change something small in your design and that completely changes the whole project?</div>
+            </div>
+        </div>
+
+        <!-- 10:00 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">10:00</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">No.</div>
+            </div>
+        </div>
+
+        <!-- 10:05 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">10:05</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">No?</div>
+            </div>
+        </div>
+
+        <!-- 10:06 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">10:06</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">No.</div>
+            </div>
+        </div>
+
+        <!-- 10:07 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">10:07</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">Okay. And are there reoccurring themes or details that just keeps coming back with every project?</div>
+            </div>
+        </div>
+
+        <!-- 10:20 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">10:20</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">Yeah, a lot of my designs they have a double function. So it's that often I design a product which has a double function. So it's not only a chair but it can also do this or it's not only a lamp but you can also plug in a plug for electricity or it's not only a table but it's also a big vase to put a tree in, you know. So there's also and I think that's interesting because then the design itself gets a new meaning and a new identity instead of being the 10 millionth design of a chair on its own. If it, you know, so that's from in my work that is something which is constant.</div>
+            </div>
+        </div>
+
+        <!-- 11:13 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">11:13</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">And then you find more a balance between those two functions or does it need to have a sort of friction between them?</div>
+            </div>
+        </div>
+
+        <!-- 11:20 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">11:20</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">No, there's no friction. There's harmony and there's joy. It's fun. So there's a lot of people who see my designs where there's this double function. They become happy and they have something like, wow, that's nice, you know. It makes me happy to see this. And no, there's no friction, no.</div>
+            </div>
+        </div>
+
+        <!-- 11:44 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">11:44</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">Okay. And with that approach, did some of your projects maybe end up completely in a different place or with different function than you thought it would be?</div>
+            </div>
+        </div>
+
+        <!-- 12:10 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">12:10</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">Well, sometimes there are, that's what I like and especially by, I also did architecture and kind of the bigger things. And I designed this pole in Mexico to capture the lightning. And it was a pole of 15 meters high. And there's a copper wire inside and it will go in the ground. And when the lightning hits the pole, then you will get this glass sculpture in the ground, in the sand underneath. So it's a lightning catcher. But when I managed to put this in, it was in Mexico this last, around Christmas. And then we had the pole standing with six wires, just was standing there 15 meters high. And there was this bird of prey just coming there and sitting on top of the pole. And that was his new spot. And that are things you cannot render, you cannot think about. But so these are presents, you know, these are presents of something. And then you're like, wow, that's nice. Now it's being used also for the bird to have a, you know, like this lookout. And then I think that's just a gift. That's a gift. And I also designed one time a ship and I made 240 holes in the complete ship. And then when the ship was placed on his final spot and I was sitting at the other side, I can see people walking in the ship. And I didn't know that because I did not render or did not make my technical drawing with moving people in it. But then I can just see people walking in the, because it was so transparent by all the holes in the ship. It was beautiful. So again, a present, which you, well, you don't not know, you know, when you have designed something or made something. And then there's always a surprise or, you know, and maybe a disappointment. I can't remember a disappointment, but probably it would be there as well.</div>
+            </div>
+        </div>
+
+        <!-- 14:30 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">14:30</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">Do you then also make a new design from the presents you get?</div>
+            </div>
+        </div>
+
+        <!-- 14:35 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">14:35</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">No, no, no, no, no, no. It's just, no, it's just, it's a gift.</div>
+            </div>
+        </div>
+
+        <!-- 15:12 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">15:12</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">If you design something that has two functions, is it then how you combine them, based on rules, or more a feeling?</div>
+            </div>
+        </div>
+
+        <!-- 15:29 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">15:29</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">No, there are no rules. It's a creative insight. The only thing, the rules, is the functionality. That's a given rule. It needs to work. It needs to function. That's a given rule. I think that's the case, yeah.</div>
+            </div>
+        </div>
+
+        <div class="divider"><span>End of formal interview</span></div>
+
+        <!-- 16:03 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">16:03</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">Well, these are the questions I prepared.</div>
+            </div>
+        </div>
+
+        <!-- 16:25 — Mingus reflection + conversation -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">16:25</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">It would be, yeah. But maybe we can... In the end, I think it's good to... Those questions are... It seems like you're sending it somewhere, or something. That you already have a kind of pre-designed idea, you know? What you said about, yes, this or that can work. While I think, no, it works very differently for me. So it has a totally different impact.</div>
+            </div>
+        </div>
+
+        <!-- 16:47 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">16:47</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">It's really the first time I'm doing an interview.</div>
+            </div>
+        </div>
+
+        <!-- 16:49 — Mingus extended -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">16:49</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">Yeah? I don't know how you can add it, but I don't know what you want to get out of it. That's kind of the question. Because that's what you said, that it wasn't clear. So it's interesting. Because it's really about a kind of personal design process. And how you approach things. So I would focus on that a bit more. If you try to see how... And it's very difficult, of course, to do. Because for me, ideas just arise, you know? They're kind of like, okay, I see this. I think, oh, that would be cool. And sometimes there's a very high dose of humor in it. You know? But often it is with my designs that there is really a double function. Pretty often in...</div>
+            </div>
+        </div>
+
+        <!-- 17:08 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">17:08</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">I'm still looking for myself a little bit, but... Yeah.</div>
+            </div>
+        </div>
+
+        <div class="divider"><span>Showing portfolio — Bureau Lakenvelder</span></div>
+
+        <!-- 17:12 — Mingus showing portfolio -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">17:12</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">Can you see my site here? Bureau Lakenvelder. That's a double function. You see? It's a framework that... It's for a construction company. This, for example. This is a company. And this looks like a closet, so to speak. But it's a mailbox, so to speak. As you can see here. You see? It's actually a kind of hanging dresser. If you open it, it's a mailbox. You can get all your mail out of here. So I think it's nice that... It presents itself as a hanging closet. But they're actually just mailboxes. And another example of this is... This is a nice double function. They are...</div>
+            </div>
+        </div>
+
+        <!-- 19:24 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">19:24</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">It's a ladder right away.</div>
+            </div>
+        </div>
+
+        <!-- 19:26 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">19:26</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">Yes. It's the ladder, but it's also the double function so you don't fall out. And there are six lodging spots. So it immediately gives an image, you know, of which you think, oh yes, then I will become... This is for the design museum in Den Bosch. It contains ceramic work. This is actually plants, so it has a bit of a double function, but this is also a double function, actually, it's just a desk to call, there's a ball in it, and what you can do is...</div>
+            </div>
+        </div>
+
+        <!-- 20:27 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">20:27</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">When did you actually start with the double function?</div>
+            </div>
+        </div>
+
+        <!-- 20:31 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">20:31</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">Here, this is a very clear double function, a tree and an office. When I graduated, let me see, I'm going back to my old jobs. This is also a double function, a laptop bag. When you open that flap, it's your mouse pad, but it's also your bag that you take with you. This is a very clear one, this is a power point, and this is a light bulb and a socket to plug in, so that's a double function again, so it's light and electricity. You see, in a way, that comes back a lot in my work. Storage, this was for the Expo 2000 in Hanover, the World Expo. These are containers to store things, but you rolled it up and it immediately became the desk. So it's a combination of storage and a desk. So there are a lot of things that work as a kind of recurring double function. This was the ship, this is the ship with the holes in it. If you walked to the other side, you would see people walking through the ship. 240 holes are in there. It's a great assignment.</div>
+            </div>
+        </div>
+
+        <!-- 22:30 — Mingus personal story -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">22:30</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">So that's kind of the... My grandfather was shot dead in the war. They threw him in a ditch. Together with another man from the village, they just killed him in Rotterdam, in a basement. And then they threw him in that ditch. So this is a shovel with a cross on top. So this is also a cross, a ship, you know. It's also a bit of a double function. So it's a lot of... Yes, no, I notice that it's a recurring thing.</div>
+            </div>
+        </div>
+
+        <!-- 23:11 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">23:11</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">Never looked or never visited, why?</div>
+            </div>
+        </div>
+
+        <!-- 23:14 — Mingus explains why double function -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">23:14</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">Well, I think I know where it's coming from. Because if you introduce a double function, it suddenly gets a new identity, a new function. So if that chair also offers space to put something on it or whatever, then it's not just that chair, but it also has that other function that goes with it, so that people will rather say, hey, that's interesting. I can use it well. But for example, that table I designed with that tree in it. It's called the table pot. But then you're actually always under your own tree. So I designed it for a company. Suppose I have a company and I have all those tables and you come to work for me. Then the first thing I do is go to a good garden center with you and buy a nice tree. And that will be your tree. And you're going to take care of that tree, because this is your office. I think that's a nice story. There are often stories attached to it. And that's why that table is just a cool table. It floats, you know. It's a beautiful image, so it's an image-enhancing thing. And it has that beautiful function that you're also working under a tree. So, like this.</div>
+            </div>
+        </div>
+
+        <div class="divider"><span>• • •</span></div>
+
+        <!-- 24:57 -->
+        <div class="block s1">
+            <div class="block-meta">
+                <span class="block-time">24:57</span>
+                <span class="block-speaker">Sarrón</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">Thank you very much for the time.</div>
+            </div>
+        </div>
+
+        <!-- 24:59 -->
+        <div class="block s2">
+            <div class="block-meta">
+                <span class="block-time">24:59</span>
+                <span class="block-speaker">Mingus</span>
+            </div>
+            <div class="block-content">
+                <div class="block-text">You're welcome. Well done, and good luck!</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        Interview conducted by Sarrón Harfsterkamp · April 2026
+    </div>
+
+</div>
+</body>
+</html>
