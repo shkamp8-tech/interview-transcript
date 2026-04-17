@@ -435,52 +435,22 @@ segments.forEach(function(seg) {
     tr.appendChild(el);
 });
 
-// ─── IndexedDB audio persistence ───
-var DB_NAME = 'interviewAudioDB';
-var DB_STORE = 'audio';
-function openDB(cb) {
-    var req = indexedDB.open(DB_NAME, 1);
-    req.onupgradeneeded = function() { req.result.createObjectStore(DB_STORE); };
-    req.onsuccess = function() { cb(req.result); };
-    req.onerror = function() { cb(null); };
-}
-function saveAudioToDB(blob) {
-    openDB(function(db) {
-        if (!db) return;
-        var tx = db.transaction(DB_STORE, 'readwrite');
-        tx.objectStore(DB_STORE).put(blob, 'interview');
-    });
-}
-function loadAudioFromDB() {
-    openDB(function(db) {
-        if (!db) return;
-        var tx = db.transaction(DB_STORE, 'readonly');
-        var req = tx.objectStore(DB_STORE).get('interview');
-        req.onsuccess = function() {
-            if (req.result) {
-                var url = URL.createObjectURL(req.result);
-                ap.src = url;
-                dropLabel.style.display = 'none';
-                dropLabel.insertAdjacentHTML('afterend', '<div class="drop-label" style="display:block;padding:6px;text-align:center;font-size:0.78rem;color:var(--text-dim);">&#10003; Audio loaded from previous session</div>');
-                playerWrap.classList.add('show');
-            }
-        };
-    });
-}
-
 // Audio file loading
 var dropLabel = document.getElementById('dropLabel');
 var playerWrap = document.getElementById('playerWrap');
 var fileInput = document.getElementById('audioFile');
 var audioBar = document.getElementById('audioBar');
 
+// Auto-load hosted audio file
+ap.src = 'interview.m4a';
+dropLabel.style.display = 'none';
+playerWrap.classList.add('show');
+
 function loadAudio(file) {
     var url = URL.createObjectURL(file);
     ap.src = url;
     dropLabel.style.display = 'none';
     playerWrap.classList.add('show');
-    // Save to IndexedDB for next time
-    saveAudioToDB(file);
 }
 
 fileInput.addEventListener('change', function() {
@@ -494,9 +464,6 @@ audioBar.addEventListener('drop', function(e) {
     dropLabel.style.color = '';
     if (e.dataTransfer.files.length) loadAudio(e.dataTransfer.files[0]);
 });
-
-// Try loading saved audio on page load
-loadAudioFromDB();
 
 // Speed buttons
 document.querySelectorAll('.sbtn').forEach(function(btn) {
