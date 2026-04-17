@@ -1,1208 +1,551 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audio Vertaler</title>
+    <title>Interview — Mingus (Peter Hopman)</title>
     <style>
-        :root {
-            --bg: #0b0b14;
-            --card: #13132a;
-            --card-border: #1e1e40;
-            --accent: #6c63ff;
-            --accent2: #a855f7;
-            --text: #e8e8f0;
-            --muted: #7a7a9a;
-            --dim: #4a4a6a;
-            --s1: #5bb8f5;
-            --s1-bg: #162840;
-            --s2: #f5a623;
-            --s2-bg: #3a2a10;
-            --ok: #3ddc84;
-            --err: #ff6b6b;
-            --radius: 14px;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
-        body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            line-height: 1.5;
+
+        /* ─── Theme variables ─── */
+        :root {
+            --bg: #ffffff;
+            --bg-secondary: #f5f5f7;
+            --bg-bar: rgba(255,255,255,0.92);
+            --text: #1a1a2e;
+            --text-muted: #666;
+            --text-dim: #999;
+            --border: #e0e0e8;
+            --accent: #6c63ff;
+            --accent-light: rgba(108,99,255,0.08);
+            --accent-active: rgba(108,99,255,0.15);
+            --s1: #2563eb;
+            --s1-bg: #eff6ff;
+            --s1-text: #1d4ed8;
+            --s2: #d97706;
+            --s2-bg: #fffbeb;
+            --s2-text: #b45309;
+            --divider-bg: var(--bg);
+            --shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        [data-theme="dark"] {
+            --bg: #0f0f1a;
+            --bg-secondary: #161630;
+            --bg-bar: rgba(22,22,48,0.94);
+            --text: #e0e0ee;
+            --text-muted: #888;
+            --text-dim: #555;
+            --border: #222250;
+            --accent: #6c63ff;
+            --accent-light: rgba(108,99,255,0.06);
+            --accent-active: rgba(108,99,255,0.14);
+            --s1: #5bb8f5;
+            --s1-bg: #0d1f33;
+            --s1-text: #5bb8f5;
+            --s2: #f5a623;
+            --s2-bg: #2a1f08;
+            --s2-text: #f5a623;
+            --divider-bg: #0f0f1a;
+            --shadow: 0 2px 12px rgba(0,0,0,0.3);
         }
 
-        /* ─── Layout ─── */
-        .page { max-width: 860px; margin: 0 auto; padding: 24px 16px 60px; }
+        body {
+            font-family: 'Segoe UI', -apple-system, Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+        .page { max-width: 780px; margin: 0 auto; padding: 16px 20px 80px; }
 
         /* ─── Header ─── */
-        .header {
-            text-align: center;
-            padding: 40px 0 32px;
-        }
-        .header h1 {
-            font-size: 2rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
-        }
-        .header p {
-            color: var(--muted);
-            font-size: 0.92rem;
-            max-width: 500px;
-            margin: 0 auto;
-        }
+        .hdr { text-align: center; padding: 32px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 24px; position: relative; }
+        .hdr h1 { font-size: 1.8rem; font-weight: 800; background: linear-gradient(135deg,#6c63ff,#a855f7); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
+        .hdr .sub { font-size: 1rem; color: var(--text-muted); line-height: 1.6; }
+        .hdr .sub strong { color: var(--text); }
+        .hdr .date { margin-top: 6px; font-size: 0.85rem; color: var(--text-dim); }
 
-        /* ─── Upload Section ─── */
-        .upload-section {
-            transition: opacity 0.5s, max-height 0.5s;
-            overflow: hidden;
+        /* Theme toggle */
+        .theme-btn {
+            position: absolute; top: 32px; right: 0;
+            background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 50%;
+            width: 40px; height: 40px; cursor: pointer; font-size: 1.3rem;
+            color: var(--text); display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; z-index: 10;
         }
-        .upload-section.hidden {
-            opacity: 0;
-            max-height: 0;
-            pointer-events: none;
-            margin: 0;
-            padding: 0;
-        }
-        .card {
-            background: var(--card);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius);
-            padding: 20px 24px;
-            margin-bottom: 14px;
-        }
-        .card-label {
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--muted);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .card-label .icon { font-size: 1rem; }
-        input[type="password"] {
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: 10px;
-            border: 1px solid var(--card-border);
-            background: var(--bg);
-            color: var(--text);
-            font-size: 0.95rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        input[type="password"]:focus { border-color: var(--accent); }
-        .hint { font-size: 0.75rem; color: var(--dim); margin-top: 6px; }
+        .theme-btn:hover { border-color: var(--accent); transform: scale(1.1); background: var(--accent-light); }
 
-        /* File drop zone */
-        .drop-zone {
-            border: 2px dashed var(--card-border);
-            border-radius: 12px;
-            padding: 32px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color 0.2s, background 0.2s;
-            position: relative;
-        }
-        .drop-zone:hover, .drop-zone.dragover {
-            border-color: var(--accent);
-            background: rgba(108, 99, 255, 0.05);
-        }
-        .drop-zone input[type="file"] {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-        .drop-icon { font-size: 2rem; margin-bottom: 8px; }
-        .drop-text { color: var(--muted); font-size: 0.88rem; }
-        .drop-text strong { color: var(--accent); }
-        .file-name {
-            margin-top: 10px;
-            font-size: 0.85rem;
-            color: var(--ok);
-            display: none;
-        }
+        /* ─── Legend ─── */
+        .legend { display: flex; gap: 24px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--text-muted); }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .legend-dot.c1 { background: var(--s1); }
+        .legend-dot.c2 { background: var(--s2); }
 
-        /* Settings row */
-        .settings {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 14px;
-            padding-top: 14px;
-            border-top: 1px solid var(--card-border);
-        }
-        .settings label {
-            font-size: 0.82rem;
-            color: var(--muted);
-            white-space: nowrap;
-        }
-        .settings select {
-            padding: 6px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--card-border);
-            background: var(--bg);
-            color: var(--text);
-            font-size: 0.85rem;
-        }
-
-        /* Start button */
-        .btn-start {
-            width: 100%;
-            padding: 16px;
-            font-size: 1.05rem;
-            font-weight: 700;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            color: white;
-            cursor: pointer;
-            transition: opacity 0.2s, transform 0.1s;
-            margin-top: 6px;
-        }
-        .btn-start:hover { opacity: 0.92; transform: translateY(-1px); }
-        .btn-start:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
-
-        /* ─── Progress ─── */
-        .progress-section { display: none; margin-top: 20px; }
-        .progress-section.show { display: block; }
-        .progress-steps {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-        .pstep {
-            flex: 1;
-            background: var(--card);
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            padding: 12px 8px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            transition: border-color 0.3s;
-        }
-        .pstep-num {
-            display: inline-flex;
-            width: 24px; height: 24px;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: var(--card-border);
-            color: var(--dim);
-            font-size: 0.72rem;
-            font-weight: 800;
-            margin-bottom: 4px;
-        }
-        .pstep-label { font-size: 0.72rem; color: var(--dim); display: block; }
-        .pstep.active { border-color: var(--accent); }
-        .pstep.active .pstep-num { background: var(--accent); color: white; }
-        .pstep.active .pstep-label { color: var(--muted); }
-        .pstep.done { border-color: var(--ok); }
-        .pstep.done .pstep-num { background: var(--ok); color: white; }
-        .pstep.done .pstep-label { color: var(--ok); }
-        .pstep-bar {
-            position: absolute;
-            left: 0; bottom: 0; height: 3px; width: 0%;
-            background: linear-gradient(90deg, var(--accent), var(--accent2));
-            transition: width 0.4s;
-        }
-        .pstep.done .pstep-bar { background: var(--ok); width: 100% !important; }
-
-        .progress-main-bar {
-            height: 6px;
-            background: var(--card);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-bottom: 12px;
-        }
-        .progress-main-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--accent), var(--accent2));
-            border-radius: 3px;
-            transition: width 0.4s;
-        }
-        .progress-info {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.82rem;
-        }
-        .progress-info .label { color: var(--muted); }
-        .progress-info .pct { color: var(--accent); font-weight: 700; }
-        .progress-time { font-size: 0.75rem; color: var(--dim); margin-top: 4px; }
-
-        /* ─── Error ─── */
-        .error-box {
-            display: none;
-            background: #1a0f0f;
-            border: 1px solid #3a1a1a;
-            color: var(--err);
-            padding: 16px 20px;
-            border-radius: var(--radius);
-            margin-top: 16px;
-            font-size: 0.88rem;
-            white-space: pre-line;
-        }
-
-        /* ─── Player Section ─── */
-        .player-section {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: 1px solid var(--card-border);
-            background: var(--card);
-            color: var(--muted);
-            cursor: pointer;
-            font-size: 0.82rem;
-            margin-bottom: 16px;
-            transition: border-color 0.2s;
-        }
-        .back-btn:hover { border-color: var(--accent); color: var(--text); }
-
+        /* ─── Audio bar ─── */
         .audio-bar {
-            background: var(--card);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius);
-            padding: 16px 20px;
-            position: sticky;
-            top: 8px;
-            z-index: 20;
-            backdrop-filter: blur(12px);
-            margin-bottom: 20px;
+            background: var(--bg-bar); border: 1px solid var(--border); border-radius: 12px;
+            padding: 14px 16px; margin-bottom: 16px;
+            position: sticky; top: 6px; z-index: 20;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            box-shadow: var(--shadow);
         }
-        audio {
-            width: 100%;
-            height: 40px;
-            border-radius: 8px;
-        }
-        .speed-bar {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 10px;
-            font-size: 0.78rem;
-            color: var(--dim);
-        }
-        .speed-bar span { margin-right: 4px; }
-        .speed-btn {
-            padding: 3px 10px;
-            border-radius: 6px;
-            border: 1px solid var(--card-border);
-            background: transparent;
-            color: var(--muted);
-            cursor: pointer;
-            font-size: 0.78rem;
-            transition: all 0.15s;
-        }
-        .speed-btn:hover { border-color: var(--accent); color: var(--text); }
-        .speed-btn.on { background: var(--accent); color: white; border-color: var(--accent); }
+        .drop-label { color: var(--text-dim); font-size: 0.85rem; cursor: pointer; padding: 10px; display: block; text-align: center; }
+        .drop-label:hover { color: var(--accent); }
+        .drop-label strong { color: var(--text-muted); }
+        #audioFile { display: none; }
+        audio { width: 100%; height: 40px; border-radius: 8px; }
+        .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; }
+        .controls span { font-size: 0.75rem; color: var(--text-dim); }
+        .sbtn { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; font-size: 0.75rem; transition: all 0.15s; }
+        .sbtn:hover { border-color: var(--accent); color: var(--text); }
+        .sbtn.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .toggle { margin-left: auto; display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        .tbtn { padding: 5px 14px; font-size: 0.75rem; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+        .tbtn.on { background: var(--accent); color: #fff; }
+        .player-wrap { display: none; }
+        .player-wrap.show { display: block; }
 
-        /* Speaker info */
-        .speaker-info {
-            background: var(--card);
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            padding: 12px 16px;
-            font-size: 0.84rem;
-            color: var(--muted);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        /* ─── Blocks ─── */
+        .block {
+            display: flex; flex-wrap: wrap; gap: 14px; padding: 12px 16px; margin-bottom: 4px;
+            border-radius: 8px; border-left: 3px solid transparent;
+            cursor: pointer; transition: background 0.15s;
         }
-        .speaker-info .mic { font-size: 1.1rem; }
+        .block:hover { background: var(--accent-light); }
+        .block.active { background: var(--accent-active); }
+        .block.s1 { border-left-color: var(--s1); }
+        .block.s2 { border-left-color: var(--s2); }
+        .block.hid { display: none; }
 
-        /* Transcript */
-        .line {
-            display: flex;
-            gap: 8px;
-            align-items: flex-start;
-            padding: 4px 10px;
-            margin: 0;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.15s, opacity 0.2s;
-            border-left: 3px solid transparent;
-        }
-        .line:hover { background: rgba(108, 99, 255, 0.06); }
-        .line.s1 { border-left-color: var(--s1); }
-        .line.s2 { border-left-color: var(--s2); }
-        .line.s3 { border-left-color: #3ddc84; }
-        .line.s4 { border-left-color: #f472b6; }
-        .line.s5 { border-left-color: #fbbf24; }
-        .line.active { background: rgba(108, 99, 255, 0.12); }
-        .line.dimmed { opacity: 0.3; }
-        .line.dimmed:hover { opacity: 0.5; }
+        .block-meta { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 44px; padding-top: 2px; }
+        .block-time { font-size: 0.68rem; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+        .block-spk { font-size: 0.62rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
+        .block.s1 .block-spk { background: var(--s1-bg); color: var(--s1-text); }
+        .block.s2 .block-spk { background: var(--s2-bg); color: var(--s2-text); }
 
-        .line-time {
-            font-size: 0.68rem;
-            color: var(--dim);
-            min-width: 34px;
-            padding-top: 2px;
-            font-variant-numeric: tabular-nums;
-            flex-shrink: 0;
-        }
-        .line-speaker {
-            font-size: 0.64rem;
-            font-weight: 700;
-            padding: 1px 6px;
-            border-radius: 4px;
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-        .line.s1 .line-speaker { background: var(--s1-bg); color: var(--s1); }
-        .line.s2 .line-speaker { background: var(--s2-bg); color: var(--s2); }
-        .line.s3 .line-speaker { background: #0f2a1a; color: #3ddc84; }
-        .line.s4 .line-speaker { background: #2a0f20; color: #f472b6; }
-        .line.s5 .line-speaker { background: #2a2000; color: #fbbf24; }
-        .line-text {
-            flex: 1;
-            font-size: 0.85rem;
-            line-height: 1.4;
-            outline: none;
-            border-radius: 3px;
-            padding: 1px 3px;
-            margin: -1px -3px;
-            transition: background 0.2s;
-        }
-        .line-text:focus { background: rgba(108, 99, 255, 0.1); }
-        .line-check {
-            flex-shrink: 0;
-            width: 16px;
-            height: 16px;
-            margin-top: 2px;
-            accent-color: var(--accent);
-            cursor: pointer;
-        }
-        .line-swap {
-            flex-shrink: 0;
-            background: none;
-            border: 1px solid var(--card-border);
-            color: var(--dim);
-            font-size: 0.6rem;
-            padding: 1px 5px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 1px;
-            transition: border-color 0.2s, color 0.2s;
-        }
-        .line-swap:hover { border-color: var(--accent); color: var(--text); }
-        .line-note {
-            width: 100%;
-            margin-top: 2px;
-            padding: 3px 8px;
-            font-size: 0.75rem;
-            border: 1px solid transparent;
-            border-radius: 4px;
-            background: rgba(108, 99, 255, 0.04);
-            color: var(--muted);
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .line-note:focus { border-color: var(--accent); }
-        .line-note::placeholder { color: var(--dim); }
-        .line-top { display: flex; gap: 8px; align-items: flex-start; width: 100%; }
-        .line { flex-wrap: wrap; }
+        .block-body { flex: 1; min-width: 0; }
+        .block-text { font-size: 0.9rem; line-height: 1.7; }
+        .block-note { margin-top: 6px; font-size: 0.78rem; color: var(--text-dim); font-style: italic; }
+        .block-note::before { content: '\2192  '; }
 
-        /* ─── Toolbar ─── */
-        .toolbar {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 24px;
-            padding-top: 20px;
-            border-top: 1px solid var(--card-border);
-        }
-        .toolbar-row { display: flex; gap: 8px; flex-wrap: wrap; width: 100%; }
-        .toolbar-row + .toolbar-row { margin-top: 6px; }
-        .tool-btn {
-            padding: 10px 18px;
-            border-radius: 10px;
-            border: 1px solid var(--card-border);
-            background: var(--card);
-            color: var(--text);
-            cursor: pointer;
-            font-size: 0.82rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: border-color 0.2s, background 0.2s;
-        }
-        .tool-btn:hover { border-color: var(--accent); background: rgba(108,99,255,0.08); }
-        .tool-btn.active { border-color: var(--accent); background: var(--accent); color: white; }
-        .tool-hint {
-            width: 100%;
-            font-size: 0.72rem;
-            color: var(--dim);
-            margin-top: 4px;
+        /* ─── Divider ─── */
+        .divider { text-align: center; margin: 28px 0; position: relative; }
+        .divider::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--border); }
+        .divider span { position: relative; background: var(--divider-bg); padding: 0 16px; font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+        .divider.hid { display: none; }
+
+        /* ─── Footer ─── */
+        .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center; font-size: 0.75rem; color: var(--text-dim); }
+
+        @media (max-width: 600px) {
+            .page { padding: 8px 12px 60px; }
+            .hdr h1 { font-size: 1.4rem; }
+            .block { gap: 10px; padding: 10px 12px; }
+            .block-meta { min-width: 36px; }
+            .block-text { font-size: 0.84rem; }
+            .sbtn { padding: 3px 8px; font-size: 0.68rem; }
+            .tbtn { padding: 4px 10px; font-size: 0.68rem; }
+            .theme-btn { top: 24px; }
         }
 
-        /* ─── Info footer ─── */
-        .info-footer {
-            margin-top: 32px;
-            padding: 20px 24px;
-            background: var(--card);
-            border: 1px solid var(--card-border);
-            border-radius: var(--radius);
-            font-size: 0.8rem;
-            color: var(--dim);
-            line-height: 1.7;
+        /* ─── Access Code Screen ─── */
+        .gate-overlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: var(--bg);
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.4s, visibility 0.4s;
         }
-        .info-footer strong { color: var(--muted); }
+        .gate-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .gate-card {
+            background: var(--bg-secondary); border: 1px solid var(--border);
+            border-radius: 20px; padding: 48px 40px 40px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+            text-align: center; max-width: 420px; width: 90%;
+        }
+        [data-theme="dark"] .gate-card { box-shadow: 0 8px 40px rgba(0,0,0,0.35); }
+        .gate-title {
+            font-size: 0.85rem; font-weight: 700; letter-spacing: 3px;
+            text-transform: uppercase; color: var(--text-muted); margin-bottom: 32px;
+        }
+        .gate-inputs {
+            display: flex; gap: 14px; justify-content: center; margin-bottom: 32px;
+        }
+        .gate-input {
+            width: 68px; height: 76px; border-radius: 14px;
+            border: 2px solid var(--border); background: var(--bg);
+            font-size: 1.8rem; font-weight: 700; text-align: center;
+            color: var(--text); outline: none; caret-color: var(--accent);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .gate-input:focus {
+            border-color: #5b8def;
+            box-shadow: 0 0 0 4px rgba(91,141,239,0.15);
+        }
+        .gate-input.shake {
+            animation: shake 0.4s ease;
+        }
+        .gate-hint {
+            font-size: 0.82rem; color: var(--text-dim);
+        }
+        .gate-error {
+            color: #e74c3c; font-size: 0.82rem; margin-top: 8px;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .gate-error.show { opacity: 1; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
     </style>
 </head>
 <body>
-<div class="page">
 
-    <!-- ─── HEADER ─── -->
-    <div class="header" id="header">
-        <h1>🎧 Audio Translator</h1>
-        <p>Upload your audio file — receive an English translation with speaker recognition and synchronized text.</p>
+<!-- Access Code Gate -->
+<div class="gate-overlay" id="gateOverlay">
+    <div class="gate-card">
+        <div class="gate-title">Access Code</div>
+        <div class="gate-inputs" id="gateInputs">
+            <input class="gate-input" type="tel" maxlength="1" inputmode="numeric" autocomplete="off">
+            <input class="gate-input" type="tel" maxlength="1" inputmode="numeric" autocomplete="off">
+            <input class="gate-input" type="tel" maxlength="1" inputmode="numeric" autocomplete="off">
+            <input class="gate-input" type="tel" maxlength="1" inputmode="numeric" autocomplete="off">
+        </div>
+        <div class="gate-hint">Ask the creator for the access code</div>
+        <div class="gate-error" id="gateError">Incorrect code</div>
+    </div>
+</div>
+
+<div class="page" id="mainPage" style="display:none">
+
+    <div class="hdr">
+        <button class="theme-btn" id="themeBtn" title="Toggle light/dark mode">&#9790;</button>
+        <h1>&#127911; Interview Transcript</h1>
+        <div class="sub">
+            <strong>Interviewer:</strong> Sarr&#243;n Harfsterkamp<br>
+            <strong>Interviewee:</strong> Mingus (Peter Hopman)
+        </div>
+        <div class="date">April 2026</div>
     </div>
 
-    <!-- ─── UPLOAD ─── -->
-    <div class="upload-section" id="uploadSection">
-        <div class="card">
-            <div class="card-label"><span class="icon">🔑</span> API Key</div>
-            <input type="password" id="apiKey" placeholder="sk-..." autocomplete="off">
-            <div class="hint">Only used in your browser — never stored or sent to third parties.</div>
-        </div>
-
-        <div class="card">
-            <div class="card-label"><span class="icon">🎵</span> Audio File</div>
-            <div class="drop-zone" id="dropZone">
-                <div class="drop-icon">📁</div>
-                <div class="drop-text"><strong>Click to choose</strong> or drag your file here</div>
-                <div class="drop-text" style="margin-top:4px; font-size:0.75rem;">M4A · MP3 · WAV · MP4 · OGG · FLAC</div>
-                <div class="file-name" id="fileName"></div>
-                <input type="file" id="audioFile" accept="audio/*,video/*,.mp3,.wav,.m4a,.mp4,.webm,.ogg,.flac">
-            </div>
-            <div class="settings">
-                <label for="numSpeakers">Number of speakers</label>
-                <select id="numSpeakers">
-                    <option value="1">1</option>
-                    <option value="2" selected>2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                </select>
-            </div>
-        </div>
-
-        <button class="btn-start" id="startBtn" disabled>Start Translation →</button>
-
-        <!-- Progress -->
-        <div class="progress-section" id="progressSection">
-            <div class="progress-steps">
-                <div class="pstep" id="ps1"><span class="pstep-num">1</span><span class="pstep-label">Split Audio</span><div class="pstep-bar" id="pb1"></div></div>
-                <div class="pstep" id="ps2"><span class="pstep-num">2</span><span class="pstep-label">Translate</span><div class="pstep-bar" id="pb2"></div></div>
-                <div class="pstep" id="ps3"><span class="pstep-num">3</span><span class="pstep-label">Analysis</span><div class="pstep-bar" id="pb3"></div></div>
-            </div>
-            <div class="progress-main-bar"><div class="progress-main-fill" id="mainBar"></div></div>
-            <div class="progress-info">
-                <span class="label" id="pLabel">Preparing...</span>
-                <span class="pct" id="pPct">0%</span>
-            </div>
-            <div class="progress-time" id="pTime"></div>
-        </div>
-
-        <div class="error-box" id="errorBox"></div>
-
-        <div class="info-footer" id="infoFooter">
-            <strong>How does it work?</strong><br>
-            1. Audio is split into 5-minute chunks in your browser<br>
-            2. OpenAI Whisper translates each chunk to English with timestamps<br>
-            3. GPT-4o identifies speakers<br><br>
-            <strong>Click a sentence</strong> in the result to jump to that point. Text highlights automatically.<br>
-            <strong>Estimated time:</strong> ~2–4 min for 30 min audio
-        </div>
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot c1"></div> Sarr&#243;n Harfsterkamp</div>
+        <div class="legend-item"><div class="legend-dot c2"></div> Mingus (Peter Hopman)</div>
     </div>
 
-    <!-- ─── PLAYER ─── -->
-    <div class="player-section" id="playerSection">
-        <button class="back-btn" id="backBtn">← Back to upload</button>
-
-        <div class="audio-bar">
-            <audio id="audioPlayer" controls></audio>
-            <div class="speed-bar">
+    <!-- Audio bar -->
+    <div class="audio-bar" id="audioBar">
+        <label class="drop-label" id="dropLabel" for="audioFile">
+            &#127925; <strong>Click to load audio file</strong> or drag &amp; drop here
+        </label>
+        <input type="file" id="audioFile" accept="audio/*,video/*">
+        <div class="player-wrap" id="playerWrap">
+            <audio id="ap" controls></audio>
+            <div class="controls">
                 <span>Speed:</span>
-                <button class="speed-btn" data-speed="0.5">0.5×</button>
-                <button class="speed-btn" data-speed="0.75">0.75×</button>
-                <button class="speed-btn on" data-speed="1">1×</button>
-                <button class="speed-btn" data-speed="1.25">1.25×</button>
-                <button class="speed-btn" data-speed="1.5">1.5×</button>
-                <button class="speed-btn" data-speed="2">2×</button>
+                <button class="sbtn" data-s="0.5">0.5&times;</button>
+                <button class="sbtn" data-s="0.75">0.75&times;</button>
+                <button class="sbtn on" data-s="1">1&times;</button>
+                <button class="sbtn" data-s="1.25">1.25&times;</button>
+                <button class="sbtn" data-s="1.5">1.5&times;</button>
+                <button class="sbtn" data-s="2">2&times;</button>
+                <div class="toggle">
+                    <button class="tbtn" id="btAll">All</button>
+                    <button class="tbtn on" id="btImp">Important</button>
+                </div>
             </div>
-        </div>
-
-        <div class="speaker-info" id="speakerInfo" style="display:none">
-            <span class="mic">🎙️</span>
-            <span id="speakerInfoText"></span>
-        </div>
-
-        <div class="transcript" id="transcript"></div>
-
-        <div class="toolbar">
-            <div class="toolbar-row">
-                <button class="tool-btn" id="btnSelectAll">☑️ Select all</button>
-                <button class="tool-btn" id="btnSelectNone">☐ Select none</button>
-                <button class="tool-btn" id="btnCopy">📋 Copy all</button>
-                <button class="tool-btn" id="btnCopyImportant">📋 Copy important</button>
-            </div>
-            <div class="toolbar-row">
-                <button class="tool-btn" id="btnDownloadTxt">💾 Download .txt</button>
-                <button class="tool-btn" id="btnDownloadHtml">📄 Download HTML (with audio)</button>
-            </div>
-            <div class="tool-hint">💡 Click text to edit. Checkbox = important — in the export, users can toggle between all and important only.</div>
         </div>
     </div>
 
+    <div id="transcript"></div>
+
+    <div class="footer">
+        Interview conducted by Sarr&#243;n Harfsterkamp &middot; April 2026
+    </div>
 </div>
 
 <script>
-// ─── Refs ───
-const $ = id => document.getElementById(id);
-const apiKeyInput = $('apiKey');
-const audioFileInput = $('audioFile');
-const startBtn = $('startBtn');
-const dropZone = $('dropZone');
-const fileName = $('fileName');
-const uploadSection = $('uploadSection');
-const playerSection = $('playerSection');
-const progressSection = $('progressSection');
-const mainBar = $('mainBar');
-const pLabel = $('pLabel');
-const pPctEl = $('pPct');
-const pTimeEl = $('pTime');
-const errorBox = $('errorBox');
-const audioPlayer = $('audioPlayer');
-const transcriptEl = $('transcript');
-const speakerInfoEl = $('speakerInfo');
-const speakerInfoText = $('speakerInfoText');
+// ─── Access Code Gate ───
+(function() {
+    var CODE = '0003';
+    var overlay = document.getElementById('gateOverlay');
+    var mainPage = document.getElementById('mainPage');
+    var inputs = document.querySelectorAll('#gateInputs .gate-input');
+    var errorEl = document.getElementById('gateError');
 
-let t0 = 0;
-let allSegments = [];
-let audioFileRef = null;
-let monoPlaybackBlob = null;
-let audioFileUrl = null;
+    // Check if already authenticated
+    try { if (sessionStorage.getItem('authed') === '1') { unlock(); return; } } catch(e) {}
 
-// ─── Drag & drop ───
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropZone.classList.remove('dragover');
-    if (e.dataTransfer.files.length) {
-        audioFileInput.files = e.dataTransfer.files;
-        audioFileInput.dispatchEvent(new Event('change'));
+    inputs[0].focus();
+
+    inputs.forEach(function(inp, i) {
+        inp.addEventListener('input', function() {
+            inp.value = inp.value.replace(/[^0-9]/g, '');
+            if (inp.value && i < inputs.length - 1) inputs[i + 1].focus();
+            if (i === inputs.length - 1 && inp.value) checkCode();
+        });
+        inp.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && !inp.value && i > 0) {
+                inputs[i - 1].focus();
+                inputs[i - 1].value = '';
+            }
+        });
+        // Allow paste of full code
+        inp.addEventListener('paste', function(e) {
+            e.preventDefault();
+            var data = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '');
+            for (var j = 0; j < inputs.length && j < data.length; j++) {
+                inputs[j].value = data[j];
+            }
+            if (data.length >= inputs.length) checkCode();
+            else if (data.length > 0) inputs[Math.min(data.length, inputs.length - 1)].focus();
+        });
+    });
+
+    function checkCode() {
+        var entered = '';
+        inputs.forEach(function(inp) { entered += inp.value; });
+        if (entered === CODE) {
+            try { sessionStorage.setItem('authed', '1'); } catch(e) {}
+            unlock();
+        } else {
+            errorEl.classList.add('show');
+            inputs.forEach(function(inp) { inp.classList.add('shake'); inp.value = ''; });
+            setTimeout(function() {
+                inputs.forEach(function(inp) { inp.classList.remove('shake'); });
+                inputs[0].focus();
+            }, 400);
+            setTimeout(function() { errorEl.classList.remove('show'); }, 2000);
+        }
     }
-});
 
-// ─── State ───
-function updateBtn() {
-    startBtn.disabled = !(apiKeyInput.value.trim() && audioFileInput.files.length > 0);
+    function unlock() {
+        overlay.classList.add('hidden');
+        mainPage.style.display = '';
+        setTimeout(function() { overlay.remove(); }, 500);
+    }
+})();
+
+var segments = [
+  {s:15,e:19,spk:1,imp:false,text:"Okay, so, then I will start with the questions immediately."},
+  {s:20,e:34,spk:1,imp:true,text:"Do you work harder from something simple and build that up to something complex, or the other way around?"},
+  {s:35,e:40,spk:2,imp:false,text:"Can you rephrase the question again?"},
+  {s:41,e:56,spk:1,imp:true,text:"So, if you design something, do you go from something simple and make that more difficult or complex, or have something that is very complex and build that down to something simple?"},
+  {s:57,e:154,spk:2,imp:true,text:"I don\u2019t think that\u2019s the case. I think the case is always that if I have a design thought or I need to think about a concept, I immediately start by organizing all the parameters where I need to refer my concept to. And I would never go to make anything more complex. So, I\u2019m always searching for clarity and for simplicity in a sense of making it as clear as possible, as simple as possible. And by making it as simple as possible, a lot of people will understand it as well. Because if you create something very complex, it\u2019s harder to understand. No, but this is, I think in that question, it also depends on the question itself, on the design question itself. I don\u2019t know if you can, you cannot say that there\u2019s only one direction, there\u2019s only one truth. It\u2019s always, so even a design question on its own is a complex one. But I\u2019m, as a designer, always bringing it back to clarity, to making it just, okay, what do we have? What\u2019s the question? What kind of materials can I need? All those things, all the parameters around it."},
+  {s:155,e:159,spk:1,imp:true,text:"So, it\u2019s more thought in parameters than dividing?"},
+  {s:160,e:178,spk:2,imp:true,text:"It\u2019s about clarity, getting the things clear for yourself. And also making it in towards the program of wishes, to get that clear. And then you know, now I can start."},
+  {s:179,e:200,spk:1,imp:true,text:"One moment. One moment. Have you ever started with a project and midway to the project you thought it needs to be completely different?"},
+  {s:201,e:274,spk:2,imp:true,text:"What I can tell is that sometimes it happens, but that is really at the start of a project. Let\u2019s say somebody comes to me and ask if I can design a chair for them. And then I go there and have this interview with them and a talk about, okay, why? Why do you want to have a chair? And maybe it will end up that I will design a kitchen for them or an extension of their house instead of designing the chair. And that has to do with me as a designer, just asking the questions. Yeah, but why? Why do you think you need the chair? And then they say, yeah, because I want this and this. Okay. But it\u2019s probably, it\u2019s more about enjoying food or making food or whatever. So, and, you know, from that conversation, it ends up in a complete other solution and another design, which they thought will ask him for designing a chair. But having the conversation with your client, it can also just become something else."},
+  {s:275,e:279,spk:1,imp:true,text:"So, two conversation and mostly the question why?"},
+  {s:280,e:306,spk:2,imp:true,text:"Yeah, that is the start overall."},
+  {s:307,e:326,spk:1,imp:true,text:"If you design something or you need to reform it or translate to something different, then do you try to keep the original identity of your first idea, concept, object?"},
+  {s:327,e:349,spk:2,imp:true,text:"No, that also is very depending on the question and on the start of, for example, an existing design you have. And if somebody comes up with a question which is related to that design, I would redesign it towards the wishes of the client, for example."},
+  {s:350,e:354,spk:1,imp:true,text:"So the client goes first?"},
+  {s:355,e:427,spk:2,imp:true,text:"It depends. If it\u2019s my own design and I want to produce it myself, for example, then I\u2019m the client. I\u2019m my own client. But if there\u2019s a client who says, I really enjoyed, again, let\u2019s say, this chair. I think it\u2019s a beautiful chair, but I\u2019m more looking towards this or this or this and using this material. I would say, OK, I\u2019m very happy that you\u2019re here because you like my chair, but I\u2019m going to design another chair for you based upon what you really want. And that could be a starting point. The chair could be a starting point or not. It depends on what I\u2019m thinking or what would be the best to provide the client of a good design."},
+  {s:428,e:456,spk:1,imp:true,text:"Through the conversations you have with clients or for your own design, how do you decide which details can be sacrificed or need to stay?"},
+  {s:457,e:503,spk:2,imp:true,text:"That, again, is based on the conversation. And also, you can design something, but if it\u2019s very difficult to produce because the machines cannot do it or it\u2019s too expensive, all those things. There are a lot of things which are important by designing something. And it also needs to be produced in a suitable way. And it depends if it\u2019s mass production or if it\u2019s just a single one. There\u2019s a big priority in that. So, it\u2019s also difficult to answer."},
+  {s:504,e:506,spk:1,imp:true,text:"If it is for yourself, a project for your own?"},
+  {s:507,e:558,spk:2,imp:true,text:"I would. But then again, for myself, I have some machines and I can do stuff. And I can just ask companies to make, let\u2019s say, parts of a design. But it\u2019s the same because if I don\u2019t have the money, I need to find something else to make it work. So, be smart as well. Being smart in designing it instead of just making a design which is very expensive to make, for example. I think it\u2019s also very interesting to search in the possibilities of production or money or those things."},
+  {s:559,e:560,spk:1,imp:true,text:"I mean, the limits of them."},
+  {s:561,e:571,spk:2,imp:true,text:"The limits, yeah, the limits and the possibilities. But you\u2019re still able to finalize the design you want."},
+  {s:572,e:599,spk:1,imp:true,text:"Yeah. Did you ever change something small in your design and that completely changes the whole project?"},
+  {s:600,e:604,spk:2,imp:true,text:"No."},
+  {s:605,e:605,spk:1,imp:false,text:"No?"},
+  {s:606,e:606,spk:2,imp:false,text:"No."},
+  {s:607,e:619,spk:1,imp:true,text:"Okay. And are there reoccurring themes or details that just keeps coming back with every project?"},
+  {s:620,e:672,spk:2,imp:true,text:"Yeah, a lot of my designs they have a double function. So it\u2019s that often I design a product which has a double function. So it\u2019s not only a chair but it can also do this or it\u2019s not only a lamp but you can also plug in a plug for electricity or it\u2019s not only a table but it\u2019s also a big vase to put a tree in, you know. So there\u2019s also and I think that\u2019s interesting because then the design itself gets a new meaning and a new identity instead of being the 10 millionth design of a chair on its own. If it, you know, so that\u2019s from in my work that is something which is constant."},
+  {s:673,e:679,spk:1,imp:true,text:"And then you find more a balance between those two functions or does it need to have a sort of friction between them?"},
+  {s:680,e:703,spk:2,imp:true,text:"No, there\u2019s no friction. There\u2019s harmony and there\u2019s joy. It\u2019s fun. So there\u2019s a lot of people who see my designs where there\u2019s this double function. They become happy and they have something like, wow, that\u2019s nice, you know. It makes me happy to see this. And no, there\u2019s no friction, no."},
+  {s:704,e:729,spk:1,imp:true,text:"Okay. And with that approach, did some of your projects maybe end up completely in a different place or with different function than you thought it would be?"},
+  {s:730,e:869,spk:2,imp:true,text:"Well, sometimes there are, that\u2019s what I like and especially by, I also did architecture and kind of the bigger things. And I designed this pole in Mexico to capture the lightning. And it was a pole of 15 meters high. And there\u2019s a copper wire inside and it will go in the ground. And when the lightning hits the pole, then you will get this glass sculpture in the ground, in the sand underneath. So it\u2019s a lightning catcher. But when I managed to put this in, it was in Mexico this last, around Christmas. And then we had the pole standing with six wires, just was standing there 15 meters high. And there was this bird of prey just coming there and sitting on top of the pole. And that was his new spot. And that are things you cannot render, you cannot think about. But so these are presents, you know, these are presents of something. And then you\u2019re like, wow, that\u2019s nice. Now it\u2019s being used also for the bird to have a, you know, like this lookout. And then I think that\u2019s just a gift. That\u2019s a gift. And I also designed one time a ship and I made 240 holes in the complete ship. And then when the ship was placed on his final spot and I was sitting at the other side, I can see people walking in the ship. And I didn\u2019t know that because I did not render or did not make my technical drawing with moving people in it. But then I can just see people walking in the, because it was so transparent by all the holes in the ship. It was beautiful. So again, a present, which you, well, you don\u2019t not know, you know, when you have designed something or made something. And then there\u2019s always a surprise or, you know, and maybe a disappointment. I can\u2019t remember a disappointment, but probably it would be there as well."},
+  {s:870,e:874,spk:1,imp:true,text:"Do you then also make a new design from the presents you get?"},
+  {s:875,e:911,spk:2,imp:true,text:"No, no, no, no, no, no. It\u2019s just, no, it\u2019s just, it\u2019s a gift."},
+  {s:912,e:928,spk:1,imp:true,text:"If you design something that has two functions, is it then how you combine them, based on rules, or more a feeling?"},
+  {s:929,e:962,spk:2,imp:true,text:"No, there are no rules. It\u2019s a creative insight. The only thing, the rules, is the functionality. That\u2019s a given rule. It needs to work. It needs to function. That\u2019s a given rule. I think that\u2019s the case, yeah."},
+  {s:963,e:984,spk:1,imp:false,text:"Well, these are the questions I prepared."},
+  {s:985,e:1006,spk:2,imp:false,text:"It would be, yeah. But maybe we can... In the end, I think it\u2019s good to... Those questions are... It seems like you\u2019re sending it somewhere, or something. That you already have a kind of pre-designed idea, you know? What you said about, yes, this or that can work. While I think, no, it works very differently for me. So it has a totally different impact."},
+  {s:1007,e:1008,spk:1,imp:false,text:"It\u2019s really the first time I\u2019m doing an interview."},
+  {s:1009,e:1031,spk:2,imp:false,text:"Yeah? I don\u2019t know how you can add it, but I don\u2019t know what you want to get out of it. That\u2019s kind of the question. Because that\u2019s what you said, that it wasn\u2019t clear. So it\u2019s interesting. Because it\u2019s really about a kind of personal design process. And how you approach things. So I would focus on that a bit more. If you try to see how... And it\u2019s very difficult, of course, to do. Because for me, ideas just arise, you know? They\u2019re kind of like, okay, I see this. I think, oh, that would be cool. And sometimes there\u2019s a very high dose of humor in it. You know? But often it is with my designs that there is really a double function. Pretty often in..."},
+  {s:1028,e:1031,spk:1,imp:false,text:"I\u2019m still looking for myself a little bit, but... Yeah."},
+  {s:1032,e:1141,spk:2,imp:false,text:"Can you see my site here? Bureau Lakenvelder. That\u2019s a double function. You see? It\u2019s a framework that... It\u2019s for a construction company. This, for example. This is a company. And this looks like a closet, so to speak. But it\u2019s a mailbox, so to speak. As you can see here. You see? It\u2019s actually a kind of hanging dresser. If you open it, it\u2019s a mailbox. You can get all your mail out of here. So I think it\u2019s nice that... It presents itself as a hanging closet. But they\u2019re actually just mailboxes. And another example of this is... This is a nice double function. They are..."},
+  {s:1164,e:1165,spk:1,imp:false,text:"It\u2019s a ladder right away."},
+  {s:1166,e:1226,spk:2,imp:false,text:"Yes. It\u2019s the ladder, but it\u2019s also the double function so you don\u2019t fall out. And there are six lodging spots. So it immediately gives an image, you know, of which you think, oh yes, then I will become... This is for the design museum in Den Bosch. It contains ceramic work. This is actually plants, so it has a bit of a double function, but this is also a double function, actually, it\u2019s just a desk to call, there\u2019s a ball in it, and what you can do is..."},
+  {s:1227,e:1230,spk:1,imp:false,text:"When did you actually start with the double function?"},
+  {s:1231,e:1370,spk:2,imp:false,text:"Here, this is a very clear double function, a tree and an office. When I graduated, let me see, I\u2019m going back to my old jobs. This is also a double function, a laptop bag. When you open that flap, it\u2019s your mouse pad, but it\u2019s also your bag that you take with you. This is a very clear one, this is a power point, and this is a light bulb and a socket to plug in, so that\u2019s a double function again, so it\u2019s light and electricity. You see, in a way, that comes back a lot in my work. Storage, this was for the Expo 2000 in Hanover, the World Expo. These are containers to store things, but you rolled it up and it immediately became the desk. So it\u2019s a combination of storage and a desk. So there are a lot of things that work as a kind of recurring double function. This was the ship, this is the ship with the holes in it. If you walked to the other side, you would see people walking through the ship. 240 holes are in there. It\u2019s a great assignment."},
+  {s:1371,e:1390,spk:2,imp:false,text:"So that\u2019s kind of the... My grandfather was shot dead in the war. They threw him in a ditch. Together with another man from the village, they just killed him in Rotterdam, in a basement. And then they threw him in that ditch. So this is a shovel with a cross on top. So this is also a cross, a ship, you know. It\u2019s also a bit of a double function. So it\u2019s a lot of... Yes, no, I notice that it\u2019s a recurring thing."},
+  {s:1391,e:1393,spk:1,imp:false,text:"Never looked or never visited, why?"},
+  {s:1394,e:1496,spk:2,imp:false,text:"Well, I think I know where it\u2019s coming from. Because if you introduce a double function, it suddenly gets a new identity, a new function. So if that chair also offers space to put something on it or whatever, then it\u2019s not just that chair, but it also has that other function that goes with it, so that people will rather say, hey, that\u2019s interesting. I can use it well. But for example, that table I designed with that tree in it. It\u2019s called the table pot. But then you\u2019re actually always under your own tree. So I designed it for a company. Suppose I have a company and I have all those tables and you come to work for me. Then the first thing I do is go to a good garden center with you and buy a nice tree. And that will be your tree. And you\u2019re going to take care of that tree, because this is your office. I think that\u2019s a nice story. There are often stories attached to it. And that\u2019s why that table is just a cool table. It floats, you know. It\u2019s a beautiful image, so it\u2019s an image-enhancing thing. And it has that beautiful function that you\u2019re also working under a tree. So, like this."},
+  {s:1497,e:1498,spk:1,imp:true,text:"Thank you very much for the time."},
+  {s:1499,e:1510,spk:2,imp:true,text:"You\u2019re welcome. Well done, and good luck!"}
+];
+
+var dividerDefs = [
+    {before: 963, text: "End of formal interview", imp: false},
+    {before: 1032, text: "Showing portfolio \u2014 Bureau Lakenvelder", imp: false},
+    {before: 1497, text: "\u2022 \u2022 \u2022", imp: true}
+];
+
+var ap = document.getElementById('ap');
+var tr = document.getElementById('transcript');
+var mode = 1; // 0=all, 1=important
+var activeEl = null;
+
+function fmt(sec) {
+    var m = Math.floor(sec / 60);
+    var s = Math.floor(sec % 60);
+    return m + ':' + (s < 10 ? '0' : '') + s;
 }
-apiKeyInput.addEventListener('input', updateBtn);
-audioFileInput.addEventListener('change', () => {
-    updateBtn();
-    if (audioFileInput.files.length) {
-        const f = audioFileInput.files[0];
-        const mb = (f.size / 1048576).toFixed(1);
-        fileName.textContent = `✓ ${f.name} (${mb} MB)`;
-        fileName.style.display = 'block';
-        audioFileRef = f;
+
+// Build transcript blocks
+var dividerMap = {};
+dividerDefs.forEach(function(d) { dividerMap[d.before] = d; });
+
+segments.forEach(function(seg) {
+    if (dividerMap[seg.s]) {
+        var dd = dividerMap[seg.s];
+        var dv = document.createElement('div');
+        dv.className = 'divider' + (mode === 1 && !dd.imp ? ' hid' : '');
+        dv.dataset.imp = dd.imp ? '1' : '0';
+        dv.innerHTML = '<span>' + dd.text + '</span>';
+        tr.appendChild(dv);
     }
+
+    var el = document.createElement('div');
+    el.className = 'block s' + seg.spk + (mode === 1 && !seg.imp ? ' hid' : '');
+    el.dataset.s = seg.s;
+    el.dataset.e = seg.e;
+    el.dataset.imp = seg.imp ? '1' : '0';
+
+    var html = '<div class="block-meta">';
+    html += '<span class="block-time">' + fmt(seg.s) + '</span>';
+    html += '<span class="block-spk">' + (seg.spk === 1 ? 'Sarr\u00f3n' : 'Mingus') + '</span>';
+    html += '</div>';
+    html += '<div class="block-body"><div class="block-text">' + seg.text.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</div>';
+    if (seg.note) html += '<div class="block-note">' + seg.note.replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</div>';
+    html += '</div>';
+    el.innerHTML = html;
+
+    el.addEventListener('click', function() {
+        if (ap.src) { ap.currentTime = seg.s; ap.play(); }
+    });
+
+    tr.appendChild(el);
 });
-startBtn.addEventListener('click', run);
-$('backBtn').addEventListener('click', () => {
-    playerSection.style.display = 'none';
-    uploadSection.classList.remove('hidden');
-    $('header').style.display = 'block';
+
+// Audio file loading
+var dropLabel = document.getElementById('dropLabel');
+var playerWrap = document.getElementById('playerWrap');
+var fileInput = document.getElementById('audioFile');
+var audioBar = document.getElementById('audioBar');
+
+// Auto-load hosted audio file
+ap.src = 'Interview%20Mingus.m4a';
+dropLabel.style.display = 'none';
+playerWrap.classList.add('show');
+
+function loadAudio(file) {
+    var url = URL.createObjectURL(file);
+    ap.src = url;
+    dropLabel.style.display = 'none';
+    playerWrap.classList.add('show');
+}
+
+fileInput.addEventListener('change', function() {
+    if (fileInput.files.length) loadAudio(fileInput.files[0]);
+});
+
+audioBar.addEventListener('dragover', function(e) { e.preventDefault(); dropLabel.style.color = 'var(--accent)'; });
+audioBar.addEventListener('dragleave', function() { dropLabel.style.color = ''; });
+audioBar.addEventListener('drop', function(e) {
+    e.preventDefault();
+    dropLabel.style.color = '';
+    if (e.dataTransfer.files.length) loadAudio(e.dataTransfer.files[0]);
 });
 
 // Speed buttons
-document.querySelectorAll('.speed-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const spd = parseFloat(btn.dataset.speed);
-        audioPlayer.playbackRate = spd;
-        document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('on'));
-        btn.classList.add('on');
+document.querySelectorAll('.sbtn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var s = parseFloat(btn.dataset.s);
+        ap.playbackRate = s;
+        document.querySelectorAll('.sbtn').forEach(function(b) { b.classList.toggle('on', parseFloat(b.dataset.s) === s); });
     });
 });
 
-// Export buttons
-$('btnCopy').addEventListener('click', () => copyAll(false));
-$('btnCopyImportant').addEventListener('click', () => copyAll(true));
-$('btnDownloadTxt').addEventListener('click', downloadTxt);
-$('btnDownloadHtml').addEventListener('click', downloadHtml);
-$('btnSelectAll').addEventListener('click', () => toggleAllChecks(true));
-$('btnSelectNone').addEventListener('click', () => toggleAllChecks(false));
+// Toggle All / Important
+document.getElementById('btAll').addEventListener('click', function() { setMode(0); });
+document.getElementById('btImp').addEventListener('click', function() { setMode(1); });
 
-// ─── Progress ───
-function setP(pct, label, time) {
-    mainBar.style.width = pct + '%';
-    pPctEl.textContent = Math.round(pct) + '%';
-    if (label) pLabel.textContent = label;
-    if (time !== undefined) pTimeEl.textContent = time;
+function setMode(m) {
+    mode = m;
+    document.getElementById('btAll').classList.toggle('on', m === 0);
+    document.getElementById('btImp').classList.toggle('on', m === 1);
+    tr.querySelectorAll('.block').forEach(function(el) {
+        el.classList.toggle('hid', m === 1 && el.dataset.imp !== '1');
+    });
+    tr.querySelectorAll('.divider').forEach(function(el) {
+        el.classList.toggle('hid', m === 1 && el.dataset.imp !== '1');
+    });
 }
-function setStep(n) {
-    for (let i = 1; i <= 3; i++) {
-        const el = $('ps' + i);
-        el.classList.remove('active', 'done');
-        if (i < n) el.classList.add('done');
-        if (i === n) el.classList.add('active');
+
+// Sync: highlight active block
+ap.addEventListener('timeupdate', function() {
+    var t = ap.currentTime;
+    var found = null;
+    var blocks = tr.querySelectorAll('.block');
+    for (var i = 0; i < blocks.length; i++) {
+        var el = blocks[i];
+        if (!el.classList.contains('hid') && t >= parseFloat(el.dataset.s) && t <= parseFloat(el.dataset.e)) {
+            found = el;
+            break;
+        }
     }
-}
-function stepBar(n, pct) { $('pb' + n).style.width = pct + '%'; }
-function elapsed() {
-    const s = Math.round((Date.now() - t0) / 1000);
-    return s >= 60 ? `${Math.floor(s / 60)}m ${s % 60}s verstreken` : `${s}s verstreken`;
-}
+    if (found !== activeEl) {
+        if (activeEl) activeEl.classList.remove('active');
+        if (found) {
+            found.classList.add('active');
+            found.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        activeEl = found;
+    }
+});
 
-// ─── Main ───
-async function run() {
-    const apiKey = apiKeyInput.value.trim();
-    const file = audioFileInput.files[0];
-    const numSpeakers = parseInt($('numSpeakers').value) || 2;
-    if (!apiKey || !file) return;
-
-    errorBox.style.display = 'none';
-    progressSection.classList.add('show');
-    startBtn.disabled = true;
-    t0 = Date.now();
-    setP(0, 'Preparing...', '');
-    setStep(1);
-
-    try {
-        // STAP 1
-        setP(2, 'Decoding audio...', elapsed());
-        const { chunks: wavChunks, monoPlayback } = await splitAudio(file);
-        monoPlaybackBlob = monoPlayback;
-        stepBar(1, 100);
-
-        // STAP 2
-        setStep(2);
-        const rawSegs = [];
-        const total = wavChunks.length;
-
-        for (let i = 0; i < total; i++) {
-            const cs = Date.now();
-            stepBar(2, Math.round((i / total) * 100));
-            setP(33 + (i / total) * 45, `Step 2: Translating chunk ${i + 1}/${total}...`, elapsed());
-
-            const result = await whisperTranslate(wavChunks[i].blob, apiKey);
-            const offset = wavChunks[i].offsetSec;
-            for (const seg of result.segments) {
-                rawSegs.push({ start: seg.start + offset, end: seg.end + offset, text: seg.text.trim() });
+// Skip non-important in Important mode
+ap.addEventListener('timeupdate', function() {
+    if (mode !== 1) return;
+    var t = ap.currentTime;
+    var inImportant = false;
+    for (var i = 0; i < segments.length; i++) {
+        if (segments[i].imp && t >= segments[i].s && t <= segments[i].e) {
+            inImportant = true;
+            break;
+        }
+    }
+    if (!inImportant && !ap.paused) {
+        var next = null;
+        for (var i = 0; i < segments.length; i++) {
+            if (segments[i].imp && segments[i].s > t) {
+                next = segments[i];
+                break;
             }
-
-            const ct = (Date.now() - cs) / 1000;
-            const rem = Math.round(ct * (total - i - 1));
-            setP(33 + ((i + 1) / total) * 45,
-                `Step 2: Chunk ${i + 1}/${total} done`,
-                `${elapsed()} · ~${rem > 60 ? Math.ceil(rem / 60) + ' min' : rem + 's'} remaining`
-            );
         }
-        stepBar(2, 100);
-
-        // STAP 3
-        setStep(3);
-        setP(80, 'Step 3: Identifying speakers...', elapsed());
-        stepBar(3, 30);
-        allSegments = await structureSegments(rawSegs, apiKey, numSpeakers);
-        stepBar(3, 100);
-        setP(100, 'Done!', `Total: ${elapsed()}`);
-
-        // Show player
-        if (audioFileUrl) URL.revokeObjectURL(audioFileUrl);
-        audioFileUrl = URL.createObjectURL(monoPlaybackBlob);
-        audioPlayer.src = audioFileUrl;
-        buildTranscript();
-        uploadSection.classList.add('hidden');
-        $('header').style.display = 'none';
-        $('infoFooter').style.display = 'none';
-        playerSection.style.display = 'block';
-        progressSection.classList.remove('show');
-
-    } catch (err) {
-        errorBox.textContent = '❌ ' + err.message;
-        errorBox.style.display = 'block';
-    } finally {
-        startBtn.disabled = false;
-    }
-}
-
-// ─── Split audio ───
-async function splitAudio(file) {
-    setP(5, 'Audio decoderen...', elapsed());
-    const buf = await file.arrayBuffer();
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    let ab;
-    try { ab = await ctx.decodeAudioData(buf); } catch (e) {
-        throw new Error('Kan audio niet decoderen. Probeer een ander formaat (MP3/WAV).');
-    }
-    ctx.close();
-
-    const origRate = ab.sampleRate;
-    const dur = ab.duration;
-    const CHUNK = 300;
-    const nChunks = Math.ceil(dur / CHUNK);
-
-    setP(10, `${Math.round(dur / 60)} min audio → ${nChunks} stuk(ken)`, elapsed());
-
-    // Mix to mono
-    const mono = new Float32Array(ab.length);
-    const nCh = ab.numberOfChannels;
-    for (let c = 0; c < nCh; c++) {
-        const d = ab.getChannelData(c);
-        for (let i = 0; i < d.length; i++) mono[i] += d[i] / nCh;
-    }
-
-    // Create mono WAV at original sample rate for playback
-    const monoPlayback = encodeWav(mono, origRate);
-
-    // Resample to 16kHz
-    const TR = 16000;
-    const ratio = TR / origRate;
-    const rLen = Math.round(mono.length * ratio);
-    const rs = new Float32Array(rLen);
-    for (let i = 0; i < rLen; i++) {
-        const si = i / ratio;
-        const idx = Math.floor(si);
-        const f = si - idx;
-        rs[i] = (mono[idx] || 0) * (1 - f) + (mono[Math.min(idx + 1, mono.length - 1)] || 0) * f;
-    }
-
-    const chunks = [];
-    for (let i = 0; i < nChunks; i++) {
-        const s0 = Math.floor(i * CHUNK * TR);
-        const s1 = Math.min(Math.floor((i + 1) * CHUNK * TR), rs.length);
-        stepBar(1, Math.round(((i + 1) / nChunks) * 100));
-        setP(10 + ((i + 1) / nChunks) * 23, `Stap 1: Stuk ${i + 1}/${nChunks}...`, elapsed());
-        const wav = encodeWav(rs.slice(s0, s1), TR);
-        chunks.push({ blob: new File([wav], `c${i}.wav`, { type: 'audio/wav' }), offsetSec: i * CHUNK });
-    }
-    return { chunks, monoPlayback };
-}
-
-function encodeWav(smp, rate) {
-    const n = smp.length, buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
-    const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
-    w(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); w(8, 'WAVE'); w(12, 'fmt ');
-    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
-    v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true);
-    v.setUint16(32, 2, true); v.setUint16(34, 16, true);
-    w(36, 'data'); v.setUint32(40, n * 2, true);
-    for (let i = 0; i < n; i++) {
-        const s = Math.max(-1, Math.min(1, smp[i]));
-        v.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
-    }
-    return new Blob([buf], { type: 'audio/wav' });
-}
-
-// ─── Whisper ───
-async function whisperTranslate(blob, apiKey) {
-    const form = new FormData();
-    form.append('file', blob, blob.name || 'audio.wav');
-    form.append('model', 'whisper-1');
-    form.append('response_format', 'verbose_json');
-
-    let resp;
-    try {
-        resp = await fetch('https://api.openai.com/v1/audio/translations', {
-            method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}` }, body: form
-        });
-    } catch (e) {
-        throw new Error('Geen verbinding met OpenAI.\n• Draai via http://localhost (niet file://)\n• Controleer internet/VPN');
-    }
-    if (!resp.ok) {
-        const d = await resp.json().catch(() => ({}));
-        if (resp.status === 401) throw new Error('Ongeldige API key.');
-        if (resp.status === 429) throw new Error('Rate limit — wacht even en probeer opnieuw.');
-        throw new Error(d?.error?.message || `API fout ${resp.status}`);
-    }
-    return await resp.json();
-}
-
-// ─── GPT-4o structuring ───
-async function structureSegments(segs, apiKey, numSpeakers) {
-    const txt = segs.map((s, i) => `[${i}] (${fmt(s.start)}–${fmt(s.end)}) ${s.text}`).join('\n');
-    const labels = Array.from({ length: numSpeakers }, (_, i) => `Speaker ${i + 1}`).join(', ');
-
-    const sys = `You are a transcript analyst. Analyze this timestamped English transcript.
-
-Identify which of the ${numSpeakers} speakers (${labels}) is speaking in each segment based on conversational patterns, tone, and context.
-
-Return ONLY valid JSON (no markdown):
-{"speaker_info":"Brief role description for each speaker","segments":[{"i":0,"s":1}]}
-
-"i"=segment index, "s"=speaker number (1-${numSpeakers}).
-ALL indices 0–${segs.length - 1} must appear exactly once.`;
-
-    let resp;
-    try {
-        resp = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ model: 'gpt-4o', messages: [{ role: 'system', content: sys }, { role: 'user', content: txt }], temperature: 0.2, max_tokens: 16000 })
-        });
-    } catch (e) { throw new Error('Geen verbinding met OpenAI (stap 3).'); }
-    if (!resp.ok) { const d = await resp.json().catch(() => ({})); throw new Error(d?.error?.message || `GPT fout ${resp.status}`); }
-
-    const data = await resp.json();
-    let content = data.choices[0].message.content.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
-
-    let structure;
-    try { structure = JSON.parse(content); } catch (e) {
-        return Object.assign(segs.map(s => ({ ...s, speaker: 1 })), { speakerInfo: '' });
-    }
-
-    // Support both flat segments array and chapters-based format
-    const entries = structure.segments || (structure.chapters || []).flatMap(ch => ch.segments || []);
-    const result = [], assigned = new Set();
-    for (const entry of entries) {
-        if (entry.i >= 0 && entry.i < segs.length && !assigned.has(entry.i)) {
-            assigned.add(entry.i);
-            result.push({ ...segs[entry.i], speaker: entry.s || 1 });
-        }
-    }
-    for (let i = 0; i < segs.length; i++) {
-        if (!assigned.has(i)) result.push({ ...segs[i], speaker: 1 });
-    }
-    result.sort((a, b) => a.start - b.start);
-    result.speakerInfo = structure.speaker_info || '';
-    return result;
-}
-
-// ─── Merge consecutive same-speaker segments ───
-function mergeSegments(segs) {
-    const merged = [];
-    let cur = null;
-    for (const seg of segs) {
-        if (cur && cur.speaker === seg.speaker) {
-            cur.text += ' ' + seg.text;
-            cur.end = seg.end;
-            cur.parts.push({ start: seg.start, end: seg.end });
-        } else {
-            cur = { speaker: seg.speaker, start: seg.start, end: seg.end, text: seg.text, parts: [{ start: seg.start, end: seg.end }] };
-            merged.push(cur);
-        }
-    }
-    return merged;
-}
-
-// ─── Transcript UI ───
-function buildTranscript() {
-    transcriptEl.innerHTML = '';
-    if (allSegments.speakerInfo) {
-        speakerInfoText.textContent = allSegments.speakerInfo;
-        speakerInfoEl.style.display = 'flex';
-    }
-
-    // Show individual sentences (no merging) for editing
-    const numSpeakers = parseInt($('numSpeakers').value) || 2;
-    allSegments.forEach((seg, idx) => {
-        const el = document.createElement('div');
-        el.className = `line s${seg.speaker}`;
-        el.dataset.start = seg.start;
-        el.dataset.end = seg.end;
-        el.dataset.speaker = seg.speaker;
-
-        // Top row
-        const topRow = document.createElement('div');
-        topRow.className = 'line-top';
-
-        const chk = document.createElement('input');
-        chk.type = 'checkbox';
-        chk.className = 'line-check';
-        chk.checked = true;
-        chk.title = 'Important';
-        chk.addEventListener('change', () => el.classList.toggle('dimmed', !chk.checked));
-
-        const time = document.createElement('span');
-        time.className = 'line-time';
-        time.textContent = fmt(seg.start);
-        time.addEventListener('click', () => { audioPlayer.currentTime = seg.start; audioPlayer.play(); });
-
-        const spk = document.createElement('span');
-        spk.className = 'line-speaker';
-        spk.textContent = 'S' + seg.speaker;
-        spk.addEventListener('click', () => { audioPlayer.currentTime = seg.start; audioPlayer.play(); });
-
-        const swap = document.createElement('button');
-        swap.className = 'line-swap';
-        swap.textContent = '\u21c4';
-        swap.title = 'Swap speaker';
-        swap.addEventListener('click', (e) => {
-            e.stopPropagation();
-            let cur = parseInt(el.dataset.speaker);
-            cur = cur >= numSpeakers ? 1 : cur + 1;
-            el.dataset.speaker = cur;
-            el.className = `line s${cur}` + (chk.checked ? '' : ' dimmed');
-            spk.textContent = 'S' + cur;
-        });
-
-        const txt = document.createElement('span');
-        txt.className = 'line-text';
-        txt.contentEditable = 'true';
-        txt.spellcheck = false;
-        txt.textContent = seg.text;
-
-        topRow.appendChild(chk);
-        topRow.appendChild(time);
-        topRow.appendChild(spk);
-        topRow.appendChild(swap);
-        topRow.appendChild(txt);
-        el.appendChild(topRow);
-
-        // Note row
-        const note = document.createElement('input');
-        note.type = 'text';
-        note.className = 'line-note';
-        note.placeholder = 'Add note...';
-        el.appendChild(note);
-
-        transcriptEl.appendChild(el);
-    });
-}
-
-function toggleAllChecks(val) {
-    transcriptEl.querySelectorAll('.line-check').forEach(chk => {
-        chk.checked = val;
-        chk.closest('.line').classList.toggle('dimmed', !val);
-    });
-}
-
-// ─── Sync ───
-let activeLine = null;
-audioPlayer.addEventListener('timeupdate', () => {
-    const t = audioPlayer.currentTime;
-    let found = null;
-    for (const el of transcriptEl.querySelectorAll('.line')) {
-        if (t >= parseFloat(el.dataset.start) && t <= parseFloat(el.dataset.end)) { found = el; break; }
-    }
-    if (found !== activeLine) {
-        if (activeLine) activeLine.classList.remove('active');
-        if (found) { found.classList.add('active'); found.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-        activeLine = found;
+        if (next) ap.currentTime = next.s;
+        else ap.pause();
     }
 });
 
-// ─── Helpers ───
-function fmt(sec) { const m = Math.floor(sec / 60), s = Math.floor(sec % 60); return `${m}:${s.toString().padStart(2, '0')}`; }
-function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
-
-// ─── Export ───
-// Read current state from DOM (edited text + importance)
-function readTranscriptState() {
-    const lines = [];
-    transcriptEl.querySelectorAll('.line').forEach(el => {
-        const noteEl = el.querySelector('.line-note');
-        lines.push({
-            start: parseFloat(el.dataset.start),
-            end: parseFloat(el.dataset.end),
-            speaker: parseInt(el.dataset.speaker),
-            text: el.querySelector('.line-text').textContent,
-            important: el.querySelector('.line-check').checked,
-            note: noteEl ? noteEl.value.trim() : ''
-        });
-    });
-    return lines;
+// Theme toggle
+var themeBtn = document.getElementById('themeBtn');
+function setTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    themeBtn.innerHTML = t === 'dark' ? '&#9788;' : '&#9790;';
 }
-
-// Merge consecutive same-speaker sentences into paragraphs for export
-// Important vs non-important breaks the merge so they become separate blocks
-function mergeForExport(sentences) {
-    const merged = [];
-    let cur = null;
-    for (const s of sentences) {
-        if (cur && cur.speaker === s.speaker && cur.important === s.important) {
-            cur.text += ' ' + s.text;
-            cur.end = s.end;
-            if (s.note) cur.notes.push(s.note);
-        } else {
-            cur = {
-                speaker: s.speaker,
-                start: s.start,
-                end: s.end,
-                text: s.text,
-                important: s.important,
-                notes: s.note ? [s.note] : []
-            };
-            merged.push(cur);
-        }
-    }
-    // Combine notes into single string
-    merged.forEach(m => { m.note = m.notes.join(' | '); delete m.notes; });
-    return merged;
-}
-
-function copyAll(onlyImportant) {
-    const items = mergeForExport(readTranscriptState());
-    const lines = [];
-    items.forEach(s => {
-        if (onlyImportant && !s.important) return;
-        lines.push(`[${fmt(s.start)}] Speaker ${s.speaker}: ${s.text}`);
-        if (s.note) lines.push(`   → ${s.note}`);
-    });
-    const btn = onlyImportant ? $('btnCopyImportant') : $('btnCopy');
-    const origText = btn.textContent;
-    navigator.clipboard.writeText(lines.join('\n')).then(() => {
-        btn.textContent = '✅ Copied!';
-        setTimeout(() => btn.textContent = origText, 2000);
-    });
-}
-
-function downloadTxt() {
-    const items = mergeForExport(readTranscriptState());
-    const lines = [];
-    if (allSegments.speakerInfo) lines.push('Speakers: ' + allSegments.speakerInfo + '\n');
-    lines.push('=== FULL TRANSCRIPT ===\n');
-    items.forEach(s => {
-        lines.push(`[${fmt(s.start)}] Speaker ${s.speaker}: ${s.text}`);
-        if (s.note) lines.push(`   → ${s.note}`);
-    });
-    const imp = items.filter(s => s.important);
-    if (imp.length < items.length) {
-        lines.push('\n\n=== IMPORTANT ONLY ===\n');
-        imp.forEach(s => {
-            lines.push(`[${fmt(s.start)}] Speaker ${s.speaker}: ${s.text}`);
-            if (s.note) lines.push(`   → ${s.note}`);
-        });
-    }
-    dl(new Blob([lines.join('\n')], { type: 'text/plain' }), 'translation.txt');
-}
-
-async function downloadHtml() {
-    $('btnDownloadHtml').textContent = '⏳ Packaging audio...';
-
-    const file = monoPlaybackBlob;
-    const base64 = await fileToBase64(file);
-
-    const items = mergeForExport(readTranscriptState());
-    const segData = JSON.stringify(items);
-    const si = allSegments.speakerInfo ? esc(allSegments.speakerInfo) : '';
-
-    const html = buildExportHtml(segData, si, base64);
-    dl(new Blob([html], { type: 'text/html' }), 'transcript.html');
-    $('btnDownloadHtml').textContent = '📄 Download HTML (with audio)';
-}
-
-function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-}
-
-function buildExportHtml(segData, speakerInfo, audioDataUri) {
-    var h = '<!DOCTYPE html>\n<html lang="en"><head><meta charset="UTF-8">';
-    h += '<meta name="viewport" content="width=device-width,initial-scale=1.0">';
-    h += '<title>Interview Transcript</title>\n<style>\n';
-    // Reset & base
-    h += '*{box-sizing:border-box;margin:0;padding:0}';
-    h += 'html{scroll-behavior:smooth}';
-    h += 'body{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#0f0f1a;color:#e0e0ee;line-height:1.5;min-height:100vh}';
-    h += '.pg{max-width:760px;margin:0 auto;padding:16px 12px 80px}';
-    // Header
-    h += '.hd{text-align:center;padding:24px 0 16px}';
-    h += '.hd h1{font-size:1.4rem;font-weight:800;background:linear-gradient(135deg,#6c63ff,#a855f7);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}';
-    h += '.hd .meta{margin-top:10px;font-size:.82rem;color:#888;line-height:1.6}';
-    h += '.hd .meta strong{color:#bbb}';
-    // Audio bar
-    h += '.ab{background:#161630;border:1px solid #222250;border-radius:12px;padding:14px 16px;margin-bottom:12px;position:sticky;top:6px;z-index:20;backdrop-filter:blur(10px)}';
-    h += 'audio{width:100%;height:40px;border-radius:8px}';
-    // Controls row
-    h += '.cr{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}';
-    h += '.cr span{font-size:.75rem;color:#555}';
-    h += '.sb{padding:4px 10px;border-radius:6px;border:1px solid #222250;background:transparent;color:#888;cursor:pointer;font-size:.75rem;transition:all .15s}';
-    h += '.sb:hover{border-color:#6c63ff;color:#ccc}';
-    h += '.sb.on{background:#6c63ff;color:#fff;border-color:#6c63ff}';
-    // Toggle
-    h += '.tg{margin-left:auto;display:flex;border:1px solid #222250;border-radius:8px;overflow:hidden}';
-    h += '.tb{padding:5px 14px;font-size:.75rem;border:none;background:transparent;color:#888;cursor:pointer;transition:all .15s}';
-    h += '.tb.on{background:#6c63ff;color:#fff}';
-    // Speaker info
-    h += '.si{background:#161630;border:1px solid #222250;border-radius:10px;padding:10px 14px;font-size:.82rem;color:#777;margin-bottom:12px}';
-    // Lines
-    h += '.ln{display:flex;flex-wrap:wrap;gap:6px;padding:4px 8px;margin:0;border-radius:4px;cursor:pointer;border-left:3px solid transparent;transition:background .15s,opacity .2s}';
-    h += '.ln:hover{background:rgba(108,99,255,.06)}';
-    h += '.ln.active{background:rgba(108,99,255,.12)}';
-    h += '.ln.s1{border-left-color:#5bb8f5}.ln.s2{border-left-color:#f5a623}.ln.s3{border-left-color:#3ddc84}.ln.s4{border-left-color:#f472b6}.ln.s5{border-left-color:#fbbf24}';
-    h += '.ln.hid{display:none}';
-    h += '.lt{font-size:.65rem;color:#444;min-width:30px;padding-top:2px;font-variant-numeric:tabular-nums;flex-shrink:0}';
-    h += '.ls{font-size:.62rem;font-weight:700;padding:1px 5px;border-radius:4px;flex-shrink:0}';
-    h += '.ln.s1 .ls{background:#0d1f33;color:#5bb8f5}.ln.s2 .ls{background:#2a1f08;color:#f5a623}';
-    h += '.ln.s3 .ls{background:#0a1f10;color:#3ddc84}.ln.s4 .ls{background:#200a18;color:#f472b6}.ln.s5 .ls{background:#201800;color:#fbbf24}';
-    h += '.lx{flex:1;font-size:.84rem;line-height:1.45}';
-    h += '.nt{width:100%;font-size:.72rem;color:#8b8ba0;font-style:italic;padding:2px 0 2px 42px;margin:0;border:none;background:none}';
-    // Responsive
-    h += '@media(max-width:600px){.pg{padding:8px 6px 60px}.hd h1{font-size:1.15rem}.ab{padding:10px 10px;border-radius:8px}.ln{gap:4px;padding:3px 6px}.lt{font-size:.6rem;min-width:26px}.ls{font-size:.58rem;padding:1px 4px}.lx{font-size:.78rem}.sb{padding:3px 8px;font-size:.68rem}.tb{padding:4px 10px;font-size:.68rem}}';
-    h += '\n</style></head><body>\n<div class="pg">';
-    h += '<div class="hd"><h1>\ud83c\udfa7 Interview Transcript</h1>';
-    h += '<div class="meta"><strong>Interviewer:</strong> Sarr\u00f3n Harfsterkamp<br>';
-    h += '<strong>Interviewee:</strong> Mingus (Peter Hopman)<br>';
-    h += '<strong>Date:</strong> April 2026</div></div>';
-    // Audio bar
-    h += '<div class="ab"><audio id="ap" controls src="' + audioDataUri + '"></audio>';
-    h += '<div class="cr"><span>Speed:</span>';
-    h += '<button class="sb" onclick="ss(0.5)">0.5\u00d7</button>';
-    h += '<button class="sb" onclick="ss(0.75)">0.75\u00d7</button>';
-    h += '<button class="sb on" onclick="ss(1)">1\u00d7</button>';
-    h += '<button class="sb" onclick="ss(1.25)">1.25\u00d7</button>';
-    h += '<button class="sb" onclick="ss(1.5)">1.5\u00d7</button>';
-    h += '<button class="sb" onclick="ss(2)">2\u00d7</button>';
-    h += '<div class="tg"><button class="tb" id="btAll" onclick="tf(0)">All</button><button class="tb on" id="btImp" onclick="tf(1)">Important</button></div>';
-    h += '</div></div>';
-    if (speakerInfo) h += '<div class="si">\ud83c\udfa4 ' + speakerInfo + '</div>';
-    h += '<div id="tr"></div>';
-    h += '</div>\n';
-    // Script
-    h += '<script>\nvar segs=' + segData + ';\n';
-    h += 'var ap=document.getElementById("ap"),tr=document.getElementById("tr"),md=1;\n';
-    h += 'function fmt(s){return Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0")}\n';
-    h += 'function ss(s){ap.playbackRate=s;document.querySelectorAll(".sb").forEach(function(b){b.classList.toggle("on",parseFloat(b.textContent)===s)})}\n';
-    h += 'function tf(m){md=m;document.getElementById("btAll").classList.toggle("on",m===0);document.getElementById("btImp").classList.toggle("on",m===1);tr.querySelectorAll(".ln").forEach(function(el){var imp=el.dataset.imp==="1";el.classList.toggle("hid",m===1&&!imp)})}\n';
-    h += 'var ae=null;\nsegs.forEach(function(s){\n';
-    h += 'var el=document.createElement("div");el.className="ln s"+s.speaker+(s.important?"":" hid");el.dataset.s=s.start;el.dataset.e=s.end;el.dataset.imp=s.important?"1":"0";\n';
-    h += 'var inner=\'<span class="lt">\'+fmt(s.start)+\'</span><span class="ls">S\'+s.speaker+\'</span><span class="lx">\'+s.text.replace(/&/g,"&amp;").replace(/</g,"&lt;")+\'</span>\';\n';
-    h += 'if(s.note)inner+=\'<div class="nt">\\u2192 \'+s.note.replace(/&/g,"&amp;").replace(/</g,"&lt;")+\'</div>\';\n';
-    h += 'el.innerHTML=inner;\n';
-    h += 'el.addEventListener("click",function(){ap.currentTime=s.start;ap.play()});tr.appendChild(el)});\n';
-    h += 'ap.addEventListener("timeupdate",function(){var t=ap.currentTime,f=null;\n';
-    h += 'tr.querySelectorAll(".ln").forEach(function(el){if(!el.classList.contains("hid")&&t>=parseFloat(el.dataset.s)&&t<=parseFloat(el.dataset.e))f=el});\n';
-    h += 'if(f!==ae){if(ae)ae.classList.remove("active");if(f){f.classList.add("active");f.scrollIntoView({behavior:"smooth",block:"center"})}ae=f}});\n';
-    h += 'ap.addEventListener("timeupdate",function(){if(md!==1)return;var t=ap.currentTime;var found=false;for(var i=0;i<segs.length;i++){if(segs[i].important&&t>=segs[i].start&&t<=segs[i].end){found=true;break}}if(!found&&!ap.paused){var next=null;for(var i=0;i<segs.length;i++){if(segs[i].important&&segs[i].start>t){next=segs[i];break}}if(next)ap.currentTime=next.start;else{ap.pause()}}});\n';
-    h += '<\/script></body></html>';
-    return h;
-}
-
-function dl(blob, name) {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = name;
-    a.click();
-    URL.revokeObjectURL(a.href);
-}
+themeBtn.addEventListener('click', function() {
+    var cur = document.documentElement.getAttribute('data-theme');
+    setTheme(cur === 'dark' ? 'light' : 'dark');
+});
 </script>
 </body>
 </html>
